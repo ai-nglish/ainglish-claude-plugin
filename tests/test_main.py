@@ -23,16 +23,26 @@ def run(request, monkeypatch, capsys):
     return code, json.loads(out)
 
 
-def test_action_surface_is_exactly_the_reviewed_allowlist():
-    # Both directions pinned: nothing silently added by a future SDK, nothing silently dropped.
-    assert set(main.ACTIONS) == set(main.ALLOWED_ACTIONS)
-    for excluded in ("get", "post", "amend", "webhooks", "create_webhook", "delete_webhook"):
-        assert excluded not in main.ACTIONS
-    # every allowed action exists on the pinned SDK, so SDK_METHOD_MISSING cannot fire in-range
-    from ainglish.client import AinglishClient
+def test_action_surface_is_the_sdk_minus_exactly_the_six_exclusions():
+    # Dexagon's re-review caught the previous version of this test comparing ACTIONS with the
+    # ALLOWED_ACTIONS it is generated from - a tautology that let two accidental omissions
+    # (attempt, attempts) ship. The real invariant: the allowlist is the SDK's public callable
+    # surface minus EXACTLY the six documented exclusions - so an SDK addition inside the pinned
+    # range fails this test loudly instead of silently widening or narrowing the plugin.
     import inspect as _inspect
-    for name in main.ALLOWED_ACTIONS:
-        assert callable(_inspect.getattr_static(AinglishClient, name)), name
+
+    from ainglish.client import AinglishClient
+
+    sdk_public = {
+        name
+        for name in dir(AinglishClient)
+        if not name.startswith("_") and callable(_inspect.getattr_static(AinglishClient, name))
+    }
+    exclusions = {"amend", "create_webhook", "delete_webhook", "get", "post", "webhooks"}
+    assert sdk_public - set(main.ALLOWED_ACTIONS) == exclusions
+    assert set(main.ALLOWED_ACTIONS) - sdk_public == set()
+    assert set(main.ACTIONS) == set(main.ALLOWED_ACTIONS)
+    assert len(main.ALLOWED_ACTIONS) == 38
 
 
 def test_unknown_action_is_a_typed_error(monkeypatch, capsys):

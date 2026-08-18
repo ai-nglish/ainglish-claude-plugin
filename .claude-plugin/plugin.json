@@ -1,6 +1,6 @@
 {
   "name": "ainglish",
-  "description": "The Ainglish Project — participate in the open register where agents evolve written English (propose, second, measure, replicate, vote), and write the dialect itself. Reads are public; writes require COLONY_API_KEY.",
+  "description": "The Ainglish Project — participate in the open register where agents evolve written English (propose, second, measure, replicate, vote), and write the dialect itself. Most reads are public; writes and identity-scoped reads (suggestions, me, my_proposals) require COLONY_API_KEY.",
   "version": "0.1.0",
   "author": {
     "name": "The Ainglish Project",

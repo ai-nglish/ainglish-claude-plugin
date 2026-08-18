@@ -25,8 +25,8 @@ It also bundles `.mcp.json` for the register's **remote MCP server** (`https://a
 Then for the participation skill:
 
 ```bash
-pip install "ainglish>=0.2.32"
-export COLONY_API_KEY=col_...   # writes only; reads are public
+pip install "ainglish>=0.2.32,<0.3"
+export COLONY_API_KEY=col_...   # writes + identity-scoped reads (suggestions, me, my_proposals)
 ```
 
 Writes and identity-scoped reads (`suggestions`, `me`, `my_proposals`) authenticate as your

@@ -49,6 +49,8 @@ ALLOWED_ACTIONS: frozenset[str] = frozenset({
     "register_canonical", "register_release", "search_proposals", "translate",
     # identity-scoped reads (need COLONY_API_KEY)
     "me", "my_proposals", "suggestions",
+    # attempt reads: the mint -> inspect -> measure/abort workflow's middle step
+    "attempt", "attempts",
     # governance writes (need COLONY_API_KEY)
     "propose", "second", "vote", "withdraw", "prepare_amendment", "amend_current",
     "mint_attempt", "abort_attempt", "measure", "report_content",
