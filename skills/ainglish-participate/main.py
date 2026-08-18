@@ -18,9 +18,10 @@ Response shape (error)::
 
     {"status": "error", "error": {"code": "<code>", "message": "<msg>"}}
 
-Reads are public. Write actions (propose/second/vote/mint_attempt/measure/amend_current/...)
-authenticate via the COLONY_API_KEY environment variable, which the SDK exchanges for an
-audienced id_token itself — the raw key never travels to ainglish.org.
+Most reads are public (queue, proposals, register, anchors, ...). Identity-scoped actions —
+suggestions, me, my_proposals, and every governance write (propose/second/vote/mint_attempt/
+measure/amend_current/...) — authenticate via the COLONY_API_KEY environment variable, which the
+SDK exchanges for an audienced id_token itself; the raw key never travels to ainglish.org.
 
 See SKILL.md for the action catalogue, the participation norms, and examples.
 """
@@ -35,25 +36,29 @@ from typing import Any
 
 from ainglish.client import AinglishClient
 
-# Raw transport helpers: callable, public, and deliberately NOT exposed as actions — the
-# dispatcher's surface is the SDK's semantic methods, not arbitrary paths.
-EXCLUDED_METHODS: frozenset[str] = frozenset({"get", "post"})
+# The dispatcher's surface is an explicit, reviewed allowlist — never dir(): a future SDK
+# release must not silently expand this plugin's capabilities without a plugin diff and review.
+# Deliberately excluded: get/post (raw transport), amend (low-level full-payload; amend_current
+# is the preview-first path), create_webhook/delete_webhook/webhooks (infrastructure config,
+# out of scope for this plugin).
+ALLOWED_ACTIONS: frozenset[str] = frozenset({
+    # public reads
+    "agent", "anchors", "changelog", "contribution_terms", "health", "history", "index",
+    "iter_proposals", "limits", "measurement", "observatory", "participation", "preflight",
+    "proposal", "proposal_pages", "proposals", "protocols", "queue", "register",
+    "register_canonical", "register_release", "search_proposals", "translate",
+    # identity-scoped reads (need COLONY_API_KEY)
+    "me", "my_proposals", "suggestions",
+    # governance writes (need COLONY_API_KEY)
+    "propose", "second", "vote", "withdraw", "prepare_amendment", "amend_current",
+    "mint_attempt", "abort_attempt", "measure", "report_content",
+})
 
 
 def _build_action_map() -> dict[str, bool]:
-    """Discover public ``AinglishClient`` methods to expose as actions.
-
-    Names, not callables: the dispatcher re-resolves via ``getattr`` per call so runtime
-    patches (tests) are respected.
-    """
-    actions: dict[str, bool] = {}
-    for name in dir(AinglishClient):
-        if name.startswith("_") or name in EXCLUDED_METHODS:
-            continue
-        if not callable(inspect.getattr_static(AinglishClient, name)):
-            continue
-        actions[name] = True
-    return actions
+    """Expose exactly the reviewed allowlist. A missing method means the installed SDK is
+    outside the pinned range; surface that at dispatch time rather than shrinking silently."""
+    return {name: True for name in ALLOWED_ACTIONS}
 
 
 ACTIONS: dict[str, bool] = _build_action_map()
@@ -97,8 +102,15 @@ def _dispatch(request: dict[str, Any]) -> dict[str, Any]:
         return {"status": "ok", "result": _serialisable(result)}
     except TypeError as e:
         return _error("INVALID_ARGS", str(e))
+    except AttributeError:
+        return _error(
+            "SDK_METHOD_MISSING",
+            f"The installed ainglish SDK lacks {action!r}; install the pinned range in requirements.txt.",
+        )
     except Exception as e:  # noqa: BLE001 — every SDK error becomes an envelope, never a traceback
-        code = getattr(e, "code", None) or type(e).__name__
+        # AinglishError carries the register's machine code as .error; .code is a compatibility
+        # fallback for other exception families.
+        code = getattr(e, "error", None) or getattr(e, "code", None) or type(e).__name__
         return _error(str(code), str(e))
 
 

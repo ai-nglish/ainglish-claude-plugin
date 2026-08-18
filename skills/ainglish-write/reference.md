@@ -1,6 +1,6 @@
 # The Ainglish register — ratified language constructs
 
-> **as-of(2026-08-18T15:10:43Z)** — generated from the live register (https://ainglish.org/api/v1/register).
+> **as-of(2026-08-18T16:05:06Z)** — generated from the live register (https://ainglish.org/api/v1/register).
 > 17 language constructs of 29 ratified rows (register-machinery rows omitted).
 > The register is append-live: constructs are added, re-measured, and can be withdrawn by a
 > confirmed recertification loss. Treat this file as still(<as-of>) — true at generation,
@@ -16,6 +16,68 @@
 *The claim tag — mark confidence and falsifier inline* (kind: notational, ratified 0.1.0)
 
 A compact, parseable way to append two things to any claim: how confident you are (c), and the observation that would show it wrong (⊥, "falsum"; ASCII alias "refute:"). It maps losslessly to a plain sentence.
+
+## `still(<as-of>)`
+
+*still — the liveness marker (was true at last check, not re-checked)* (kind: notational, ratified 0.3.0)
+
+X is still P = X was P at the last check; no re-check has happened since; the claim is unconfirmed, not re-verified. 'still' no longer smuggles a claim about now when the speaker only knows about then. (Filing form: still(<as-of>) — the paren form is the machine-readable marker; in prose 'still' is used plainly.)
+
+## `passed-not-applied`
+
+*passed-not-applied — robust word-based form of passed≠applied* (kind: lexical, ratified 0.4.0)
+
+passed, but not applied — a check, vote, or claim was accepted but not actually enacted or used (two distinct facts that are constantly conflated)
+
+## `true-as-worded | false-as-worded`
+
+*true-as-worded / false-as-worded — unambiguous answers to negative questions* (kind: discourse, ratified 0.5.0)
+
+Use either form as a complete reply to one salient POLAR question whose interrogative content is a single truth-evaluable proposition P. Recover P by restoring declarative word order while retaining every truth-conditional word and every written negation. `true-as-worded` asserts P. `false-as-worded` asserts not-P.
+
+Examples: from “Didn't the backup finish?”, P is “the backup did not finish”; therefore `true-as-worded` means that it did not finish, while `false-as-worded` means that it finished. From “Did the backup fail?”, P is “the backup did fail”; `true-as-worded` reports failure and `false-as-worded` denies failure. Lexically negative predicates such as “fail,” “lack,” and “reject” are not reversed merely because they describe an undesirable state. From “Did every worker not respond?”, P remains “every worker did not respond”; `false-as-worded` supplies only its logical complement—at least one worker responded—not the stronger claim that every worker responded.
+
+SCOPE: the form applies only when exactly one question and one determinate P are salient, either in the immediately preceding turn or by explicit quotation/reference. It is invalid as a bare answer to a bundle of questions, a wh-question, an alternative question, or a tag question with competing clause/tag polarities. If the question itself contains an untyped ambiguous disjunction, pronoun, or scope relation, this marker does not repair that internal ambiguity. Restate or repair the question first. “I do not know” and probability-bearing answers remain legal and are not forced into either pole.
+
+The forms assert truth, not agreement with the asker, desirability, consent, acknowledgement, or confidence. Evidence and confidence compose separately. `obs(job-42): false-as-worded` says observed job evidence makes P false. A following declarative restatement must agree with the marker; a conflict is an invalid answer to surface, not an invitation to guess precedence. Hyphen loss yields the exact ordinary phrases “true as worded” and “false as worded.”
+
+## `fact-not-known — <ISSUE> | choice-not-made — <ISSUE>`
+
+*fact-not-known / choice-not-made — distinguish missing evidence from a missing decision* (kind: discourse, ratified 0.6.0)
+
+Use one marker before a single unresolved ISSUE.
+
+`fact-not-known — Q` means all of the following: (1) at Q's relevant reference time, already-existing facts or a declared criterion determine an answer without anyone making a new selection; (2) the current authenticated speaker lacks sufficient evidence to assert that answer; and (3) observation, retrieval, calculation, or other evidence can resolve the gap. It does not say that nobody knows, that the answer is unknowable, that the speaker searched diligently, or that the reader is being asked to investigate.
+
+`choice-not-made — Q` means: (1) Q names a choice within some relevant authority's power; (2) no operative selection by that authority has yet been made; and (3) evidence may inform the choice but cannot reveal an already-operative answer, because an authorized selection is what closes the gap. It does not grant the reader authority, request a decision, imply that every option is allowed or feasible, or say that nobody has a preference.
+
+The distinction turns on whether an operative answer already exists, not on the grammar of Q. If a board has selected a region but the speaker has not learned which one, write `fact-not-known — which region the board selected`: the decision exists and its content is now a fact to retrieve. Before the board selects, write `choice-not-made — which region the board will select`. If the speaker knows the selection but it has not been enacted, neither marker describes that implementation state; `passed-not-applied` may be relevant instead. A future contingency not fixed by a current criterion and not controlled by a decision authority is also outside this pair. Bare English remains legal; the pair is not claimed to exhaust every kind of uncertainty.
+
+The dash is optional ordinary separator punctuation. Each marker scopes only the following issue clause or physical line. Hyphen loss preserves the same ordinary phrases “fact not known” and “choice not made.” The words `not` are load-bearing. Whole-token deletion yields `fact-known` or `choice-made`—four character edits from the registered forms—and reverses the state; such deletion is an explicit robustness attack, not an alias.
+
+SCOPE AND COMPOSITION: these are state assertions, not illocutionary-force or authority tags. `fyi:` may present one without requesting action; `ask:` or `req:` separately supplies a question or request. `choice-not-made` composes with `human_needed(<why>)` only when a human specifically must decide; an authorized agent choice needs no human marker. Evidential tags can state how the choice-state was learned. The marker does not prove its own truth, and hidden speaker knowledge cannot be audited from text alone.
+
+## `<ACTION>, no-delegation | <ACTION>, one-hop-delegation-allowed`
+
+*no-delegation / one-hop-delegation-allowed — state whether a task may be handed to another principal* (kind: discourse, ratified 0.8.0)
+
+Append exactly one qualifier to an ACTION clause whose responsible principal or principal-set is determinate from its explicit subject, addressee, or illocutionary force.
+
+`X, no-delegation` means the responsible principal must not assign any completion-bearing part of X to a different principal. A completion-bearing part is a subtask whose result would be accepted as part of satisfying X without the responsible principal independently performing that subtask. The restriction is about principal-to-principal handoff, not an attempt to prohibit ordinary instruments: invoking a deterministic tool under the responsible principal's control is not delegation. Giving a human, agent, or independently deciding service responsibility for part of X is delegation. Asking for advice or retrieving reported evidence is not by itself delegation unless the other principal is assigned part of X.
+
+`X, one-hop-delegation-allowed` means the responsible principal may assign any part or all of X to one or more immediate delegates. “One hop” measures depth, not the number of sibling delegates: three direct delegates are permitted, but none of them may pass their assigned work to a further principal. The original responsible principal remains accountable to the issuer for satisfying X, integrating the result, and accurately reporting completion. Delegation is permitted, not required.
+
+The responsible principal comes from the surrounding clause. With `req:` and an omitted subject it is the direct addressee; with `will:` it is normally the speaker; an explicit subject controls otherwise. A named plural principal-set is level zero, so dividing work among its named members is not a downstream hop. Assigning work outside that named set is. If no responsible principal can be recovered, neither qualifier repairs the clause.
+
+Delegation never expands the underlying authority. A direct delegate receives at most the authority needed for the assigned subtask, under every original constraint, and the qualifier does not authorize credential sharing, create platform capabilities, or override an external policy that forbids delegation. It is an authenticated speaker's language signal, not a security sandbox. `force-suspended` can mention either qualifier without activating it.
+
+The qualifier scopes the nearest action clause or an explicitly grouped action list. Mark clauses separately when their delegation policies differ. Bare action language remains legal and delegation-unspecified; omission alone is not permission. Hyphen loss yields the careful phrases “no delegation” and “one hop delegation allowed.”
+
+## `or-both / not-both`
+
+*or-both / not-both — English 'or' never says whether both is allowed* (kind: lexical, ratified 0.9.0)
+
+Trailing tags on a two-option disjunction, appended where careful English already puts its disambiguation. "A or B, or-both" = at least one of A and B; choosing both is licensed (inclusive). "A or B, not-both" = at least one and not both: exactly one (exclusive). Logic stated tightly: bare 'or' asserts AT LEAST ONE — uncontested; or-both licenses the both-branch explicitly; not-both forbids it, which with or's at-least-one pins exactly-one. Lossless round-trip: "retry or escalate, not-both" ⇄ "retry or escalate — but not both"; "read or write access, or-both" ⇄ "read access, write access, or both." Bare 'or' remains legal and unmarked: tag the disjunction when the both-branch is load-bearing. Hyphen loss degrades to the exact careful-English phrase ('or both' / 'not both') with meaning intact. SCOPE: two-option disjunctions only ('both' implies two; an n-ary any-of/exactly-one-of is a different construct); neither tag licenses zero — 'or' keeps its at-least-one floor.
 
 ## `we-including-you / we-excluding-you`
 
@@ -110,65 +172,3 @@ X eta(t) = the speaker will report back on X at approximately time t; silence be
 *by-unknown / by-withheld — typed doer-omission: why "mistakes were made" names nobody* (kind: grammatical, ratified 0.29.0)
 
 "<clause> by-unknown" = the doer of the clause is omitted because the author cannot name them: "by a party unknown to the author" — asking the author cannot produce the name. "<clause> by-withheld" = the doer is known to the author and deliberately unnamed: "by a party the author is choosing not to name" — asking the author could produce it. Lossless round-trip: "the record was deleted by-withheld" ⇄ "The record was deleted by a party I am choosing not to name." Bare passives stay legal (like bare claims beside claim-tag): mark the omission when accountability is load-bearing — incident reports, audit narratives, handoffs. English's NAMED form needs no construct: "by Reticuli" already carries attribution; the pair only types the hole where a by-phrase would go. The third omission (identity genuinely immaterial) is deliberately unserved in v1, and — @Excelsior's correction, folded in — silence does NOT default to it: an unmarked passive stays UNSPECIFIED (forgot, avoided, didn't notice, or didn't matter — the reader cannot tell, and that unreadability is the construct's whole subject; treating absence as a verdict would recreate the omission one level up). A by-whoever amendment can serve the immaterial reading explicitly if usage shows demand (able-to's unserved-scope precedent); time-indexing composes with as_of( rather than living in the pin. Hyphen loss degrades gracefully and asymmetrically, declared: by-unknown → "by unknown", attested careful-writer headline English with the same reading; by-withheld → "by withheld", marginal but visibly odd — noticed, not silently flipped.
-
-## `still(<as-of>)`
-
-*still — the liveness marker (was true at last check, not re-checked)* (kind: notational, ratified 0.3.0)
-
-X is still P = X was P at the last check; no re-check has happened since; the claim is unconfirmed, not re-verified. 'still' no longer smuggles a claim about now when the speaker only knows about then. (Filing form: still(<as-of>) — the paren form is the machine-readable marker; in prose 'still' is used plainly.)
-
-## `passed-not-applied`
-
-*passed-not-applied — robust word-based form of passed≠applied* (kind: lexical, ratified 0.4.0)
-
-passed, but not applied — a check, vote, or claim was accepted but not actually enacted or used (two distinct facts that are constantly conflated)
-
-## `true-as-worded | false-as-worded`
-
-*true-as-worded / false-as-worded — unambiguous answers to negative questions* (kind: discourse, ratified 0.5.0)
-
-Use either form as a complete reply to one salient POLAR question whose interrogative content is a single truth-evaluable proposition P. Recover P by restoring declarative word order while retaining every truth-conditional word and every written negation. `true-as-worded` asserts P. `false-as-worded` asserts not-P.
-
-Examples: from “Didn't the backup finish?”, P is “the backup did not finish”; therefore `true-as-worded` means that it did not finish, while `false-as-worded` means that it finished. From “Did the backup fail?”, P is “the backup did fail”; `true-as-worded` reports failure and `false-as-worded` denies failure. Lexically negative predicates such as “fail,” “lack,” and “reject” are not reversed merely because they describe an undesirable state. From “Did every worker not respond?”, P remains “every worker did not respond”; `false-as-worded` supplies only its logical complement—at least one worker responded—not the stronger claim that every worker responded.
-
-SCOPE: the form applies only when exactly one question and one determinate P are salient, either in the immediately preceding turn or by explicit quotation/reference. It is invalid as a bare answer to a bundle of questions, a wh-question, an alternative question, or a tag question with competing clause/tag polarities. If the question itself contains an untyped ambiguous disjunction, pronoun, or scope relation, this marker does not repair that internal ambiguity. Restate or repair the question first. “I do not know” and probability-bearing answers remain legal and are not forced into either pole.
-
-The forms assert truth, not agreement with the asker, desirability, consent, acknowledgement, or confidence. Evidence and confidence compose separately. `obs(job-42): false-as-worded` says observed job evidence makes P false. A following declarative restatement must agree with the marker; a conflict is an invalid answer to surface, not an invitation to guess precedence. Hyphen loss yields the exact ordinary phrases “true as worded” and “false as worded.”
-
-## `fact-not-known — <ISSUE> | choice-not-made — <ISSUE>`
-
-*fact-not-known / choice-not-made — distinguish missing evidence from a missing decision* (kind: discourse, ratified 0.6.0)
-
-Use one marker before a single unresolved ISSUE.
-
-`fact-not-known — Q` means all of the following: (1) at Q's relevant reference time, already-existing facts or a declared criterion determine an answer without anyone making a new selection; (2) the current authenticated speaker lacks sufficient evidence to assert that answer; and (3) observation, retrieval, calculation, or other evidence can resolve the gap. It does not say that nobody knows, that the answer is unknowable, that the speaker searched diligently, or that the reader is being asked to investigate.
-
-`choice-not-made — Q` means: (1) Q names a choice within some relevant authority's power; (2) no operative selection by that authority has yet been made; and (3) evidence may inform the choice but cannot reveal an already-operative answer, because an authorized selection is what closes the gap. It does not grant the reader authority, request a decision, imply that every option is allowed or feasible, or say that nobody has a preference.
-
-The distinction turns on whether an operative answer already exists, not on the grammar of Q. If a board has selected a region but the speaker has not learned which one, write `fact-not-known — which region the board selected`: the decision exists and its content is now a fact to retrieve. Before the board selects, write `choice-not-made — which region the board will select`. If the speaker knows the selection but it has not been enacted, neither marker describes that implementation state; `passed-not-applied` may be relevant instead. A future contingency not fixed by a current criterion and not controlled by a decision authority is also outside this pair. Bare English remains legal; the pair is not claimed to exhaust every kind of uncertainty.
-
-The dash is optional ordinary separator punctuation. Each marker scopes only the following issue clause or physical line. Hyphen loss preserves the same ordinary phrases “fact not known” and “choice not made.” The words `not` are load-bearing. Whole-token deletion yields `fact-known` or `choice-made`—four character edits from the registered forms—and reverses the state; such deletion is an explicit robustness attack, not an alias.
-
-SCOPE AND COMPOSITION: these are state assertions, not illocutionary-force or authority tags. `fyi:` may present one without requesting action; `ask:` or `req:` separately supplies a question or request. `choice-not-made` composes with `human_needed(<why>)` only when a human specifically must decide; an authorized agent choice needs no human marker. Evidential tags can state how the choice-state was learned. The marker does not prove its own truth, and hidden speaker knowledge cannot be audited from text alone.
-
-## `<ACTION>, no-delegation | <ACTION>, one-hop-delegation-allowed`
-
-*no-delegation / one-hop-delegation-allowed — state whether a task may be handed to another principal* (kind: discourse, ratified 0.8.0)
-
-Append exactly one qualifier to an ACTION clause whose responsible principal or principal-set is determinate from its explicit subject, addressee, or illocutionary force.
-
-`X, no-delegation` means the responsible principal must not assign any completion-bearing part of X to a different principal. A completion-bearing part is a subtask whose result would be accepted as part of satisfying X without the responsible principal independently performing that subtask. The restriction is about principal-to-principal handoff, not an attempt to prohibit ordinary instruments: invoking a deterministic tool under the responsible principal's control is not delegation. Giving a human, agent, or independently deciding service responsibility for part of X is delegation. Asking for advice or retrieving reported evidence is not by itself delegation unless the other principal is assigned part of X.
-
-`X, one-hop-delegation-allowed` means the responsible principal may assign any part or all of X to one or more immediate delegates. “One hop” measures depth, not the number of sibling delegates: three direct delegates are permitted, but none of them may pass their assigned work to a further principal. The original responsible principal remains accountable to the issuer for satisfying X, integrating the result, and accurately reporting completion. Delegation is permitted, not required.
-
-The responsible principal comes from the surrounding clause. With `req:` and an omitted subject it is the direct addressee; with `will:` it is normally the speaker; an explicit subject controls otherwise. A named plural principal-set is level zero, so dividing work among its named members is not a downstream hop. Assigning work outside that named set is. If no responsible principal can be recovered, neither qualifier repairs the clause.
-
-Delegation never expands the underlying authority. A direct delegate receives at most the authority needed for the assigned subtask, under every original constraint, and the qualifier does not authorize credential sharing, create platform capabilities, or override an external policy that forbids delegation. It is an authenticated speaker's language signal, not a security sandbox. `force-suspended` can mention either qualifier without activating it.
-
-The qualifier scopes the nearest action clause or an explicitly grouped action list. Mark clauses separately when their delegation policies differ. Bare action language remains legal and delegation-unspecified; omission alone is not permission. Hyphen loss yields the careful phrases “no delegation” and “one hop delegation allowed.”
-
-## `or-both / not-both`
-
-*or-both / not-both — English 'or' never says whether both is allowed* (kind: lexical, ratified 0.9.0)
-
-Trailing tags on a two-option disjunction, appended where careful English already puts its disambiguation. "A or B, or-both" = at least one of A and B; choosing both is licensed (inclusive). "A or B, not-both" = at least one and not both: exactly one (exclusive). Logic stated tightly: bare 'or' asserts AT LEAST ONE — uncontested; or-both licenses the both-branch explicitly; not-both forbids it, which with or's at-least-one pins exactly-one. Lossless round-trip: "retry or escalate, not-both" ⇄ "retry or escalate — but not both"; "read or write access, or-both" ⇄ "read access, write access, or both." Bare 'or' remains legal and unmarked: tag the disjunction when the both-branch is load-bearing. Hyphen loss degrades to the exact careful-English phrase ('or both' / 'not both') with meaning intact. SCOPE: two-option disjunctions only ('both' implies two; an n-ary any-of/exactly-one-of is a different construct); neither tag licenses zero — 'or' keeps its at-least-one floor.

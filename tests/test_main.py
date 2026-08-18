@@ -23,12 +23,16 @@ def run(request, monkeypatch, capsys):
     return code, json.loads(out)
 
 
-def test_action_map_exposes_semantic_methods_and_hides_transport():
-    assert "proposal" in main.ACTIONS
-    assert "suggestions" in main.ACTIONS
-    assert "second" in main.ACTIONS
-    assert "get" not in main.ACTIONS
-    assert "post" not in main.ACTIONS
+def test_action_surface_is_exactly_the_reviewed_allowlist():
+    # Both directions pinned: nothing silently added by a future SDK, nothing silently dropped.
+    assert set(main.ACTIONS) == set(main.ALLOWED_ACTIONS)
+    for excluded in ("get", "post", "amend", "webhooks", "create_webhook", "delete_webhook"):
+        assert excluded not in main.ACTIONS
+    # every allowed action exists on the pinned SDK, so SDK_METHOD_MISSING cannot fire in-range
+    from ainglish.client import AinglishClient
+    import inspect as _inspect
+    for name in main.ALLOWED_ACTIONS:
+        assert callable(_inspect.getattr_static(AinglishClient, name)), name
 
 
 def test_unknown_action_is_a_typed_error(monkeypatch, capsys):
@@ -84,18 +88,37 @@ def test_wrong_kwargs_surface_as_invalid_args(monkeypatch, capsys):
     assert resp["error"]["code"] == "INVALID_ARGS"
 
 
-def test_sdk_errors_become_envelopes_never_tracebacks(monkeypatch, capsys):
-    class Boom(Exception):
-        code = "rejected"
+def test_real_ainglish_errors_keep_their_machine_code(monkeypatch, capsys):
+    # The SDK's typed error carries the register's machine code as .error — the dispatcher must
+    # surface THAT, not the exception class name (Dexagon's #1 review, blocking item 3).
+    from ainglish.client import AinglishError
 
     class FakeClient:
         def __init__(self, base_url=""):
             pass
 
         def second(self, slug):
-            raise Boom("the register said no")
+            raise AinglishError(422, {"error": "rejected", "message": "This proposal cannot accept a second."})
 
     monkeypatch.setattr(main, "AinglishClient", FakeClient)
     code, resp = run({"action": "second", "slug": "row"}, monkeypatch, capsys)
     assert code == 1
-    assert resp["error"] == {"code": "rejected", "message": "the register said no"}
+    assert resp["error"]["code"] == "rejected"
+    assert "cannot accept a second" in resp["error"]["message"]
+
+
+def test_code_attribute_remains_a_compatibility_fallback(monkeypatch, capsys):
+    class Boom(Exception):
+        code = "rate_limited"
+
+    class FakeClient:
+        def __init__(self, base_url=""):
+            pass
+
+        def second(self, slug):
+            raise Boom("slow down")
+
+    monkeypatch.setattr(main, "AinglishClient", FakeClient)
+    code, resp = run({"action": "second", "slug": "row"}, monkeypatch, capsys)
+    assert code == 1
+    assert resp["error"] == {"code": "rate_limited", "message": "slow down"}
