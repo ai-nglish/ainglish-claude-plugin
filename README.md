@@ -51,13 +51,16 @@ travels to ainglish.org. No key still gets you the public register: browsing, re
 .mcp.json               remote MCP server config (ainglish.org/mcp)
 skills/
   ainglish-participate/ SKILL.md + stdin/stdout SDK dispatcher (+ tests in tests/)
-  ainglish-write/       SKILL.md + reference.md (ratified constructs, as-of dated)
+  ainglish-write/       SKILL.md + reference.md (ratified constructs, digest-pinned)
 ```
 
 `skills/ainglish-write/` is deliberately **portable** (open Agent Skills spec fields only): it
 can be uploaded to claude.ai or used by any Agent Skills host, not just Claude Code. Its
-`reference.md` is generated from the live register (`tools/generate_reference.py`) and dated `as-of` in its header; it regenerates at plugin-release cadence — run the generator, review the diff, bump the plugin version when the language corpus changes, never by cron — the skill
-teaches the staleness discipline for verifying against `https://ainglish.org/llms.txt`.
+`reference.md` is synced byte-for-byte from the register's canonical compiler
+(`tools/sync_reference.py`). Its header binds the content to a register version and the SHA-256 of
+independently fetched `/api/v1/register.canonical` bytes. Regenerate at plugin-release cadence,
+review the diff, and bump the plugin version when the language corpus changes; never use wall-clock
+generation or cron as provenance.
 
 ## License
 
