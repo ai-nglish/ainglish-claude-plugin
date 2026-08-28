@@ -42,7 +42,9 @@ def test_action_surface_is_the_sdk_minus_exactly_the_six_exclusions():
     assert sdk_public - set(main.ALLOWED_ACTIONS) == exclusions
     assert set(main.ALLOWED_ACTIONS) - sdk_public == set()
     assert set(main.ACTIONS) == set(main.ALLOWED_ACTIONS)
-    assert len(main.ALLOWED_ACTIONS) == 38
+    assert len(main.ALLOWED_ACTIONS) == 48
+    assert "flagship_evidence_map" in main.ALLOWED_ACTIONS
+    assert "rename_proposal_slug" in main.ALLOWED_ACTIONS
 
 
 def test_unknown_action_is_a_typed_error(monkeypatch, capsys):
@@ -132,3 +134,31 @@ def test_code_attribute_remains_a_compatibility_fallback(monkeypatch, capsys):
     code, resp = run({"action": "second", "slug": "row"}, monkeypatch, capsys)
     assert code == 1
     assert resp["error"] == {"code": "rate_limited", "message": "slow down"}
+
+
+def test_missing_pinned_sdk_method_is_typed(monkeypatch, capsys):
+    class OldClient:
+        def __init__(self, base_url=""):
+            pass
+
+    monkeypatch.setattr(main, "AinglishClient", OldClient)
+    code, resp = run({"action": "flagship_evidence_map"}, monkeypatch, capsys)
+    assert code == 1
+    assert resp["error"]["code"] == "SDK_METHOD_MISSING"
+
+
+def test_attribute_error_inside_an_existing_sdk_method_is_not_mislabeled(monkeypatch, capsys):
+    class BrokenClient:
+        def __init__(self, base_url=""):
+            pass
+
+        def flagship_evidence_map(self):
+            raise AttributeError("malformed response has no evidence key")
+
+    monkeypatch.setattr(main, "AinglishClient", BrokenClient)
+    code, resp = run({"action": "flagship_evidence_map"}, monkeypatch, capsys)
+    assert code == 1
+    assert resp["error"] == {
+        "code": "AttributeError",
+        "message": "malformed response has no evidence key",
+    }

@@ -43,17 +43,19 @@ from ainglish.client import AinglishClient
 # out of scope for this plugin).
 ALLOWED_ACTIONS: frozenset[str] = frozenset({
     # public reads
-    "agent", "anchors", "changelog", "contribution_terms", "health", "history", "index",
-    "iter_proposals", "limits", "measurement", "observatory", "participation", "preflight",
-    "proposal", "proposal_pages", "proposals", "protocols", "queue", "register",
-    "register_canonical", "register_release", "search_proposals", "translate",
+    "agent", "anchors", "changelog", "contribution_terms", "evidence_contract_audit",
+    "flagship_evidence_map", "flagships", "health", "history", "index", "iter_measurements",
+    "iter_proposals", "limits", "measurement", "measurement_pages", "measurements", "observatory",
+    "participation", "preflight", "proposal", "proposal_pages", "proposal_slug_history",
+    "proposals", "protocols", "queue", "register", "register_canonical", "register_release",
+    "search_proposals", "semantic_map", "translate",
     # identity-scoped reads (need COLONY_API_KEY)
     "me", "my_proposals", "suggestions",
     # attempt reads: the mint -> inspect -> measure/abort workflow's middle step
-    "attempt", "attempts",
+    "attempt", "attempt_manifest", "attempts",
     # governance writes (need COLONY_API_KEY)
     "propose", "second", "vote", "withdraw", "prepare_amendment", "amend_current",
-    "mint_attempt", "abort_attempt", "measure", "report_content",
+    "mint_attempt", "abort_attempt", "measure", "rename_proposal_slug", "report_content",
 })
 
 
@@ -98,17 +100,18 @@ def _dispatch(request: dict[str, Any]) -> dict[str, Any]:
 
     try:
         client = AinglishClient(base_url=os.environ.get("AINGLISH_BASE", "https://ainglish.org"))
-        result = getattr(client, action)(**kwargs)
+        method = getattr(client, action, None)
+        if not callable(method):
+            return _error(
+                "SDK_METHOD_MISSING",
+                f"The installed ainglish SDK lacks {action!r}; install the pinned range in requirements.txt.",
+            )
+        result = method(**kwargs)
         if inspect.isgenerator(result):
             result = list(result)
         return {"status": "ok", "result": _serialisable(result)}
     except TypeError as e:
         return _error("INVALID_ARGS", str(e))
-    except AttributeError:
-        return _error(
-            "SDK_METHOD_MISSING",
-            f"The installed ainglish SDK lacks {action!r}; install the pinned range in requirements.txt.",
-        )
     except Exception as e:  # noqa: BLE001 — every SDK error becomes an envelope, never a traceback
         # AinglishError carries the register's machine code as .error; .code is a compatibility
         # fallback for other exception families.
