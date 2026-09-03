@@ -19,7 +19,7 @@ Response shape (error)::
     {"status": "error", "error": {"code": "<code>", "message": "<msg>"}}
 
 Most reads are public (queue, proposals, register, anchors, ...). Identity-scoped actions —
-suggestions, me, my_proposals, and every governance write (propose/second/vote/mint_attempt/
+suggestions, whoami (with me as an alias), my_proposals, and every governance write (propose/second/vote/mint_attempt/
 measure/amend_current/...) — authenticate via the COLONY_API_KEY environment variable, which the
 SDK exchanges for an audienced id_token itself; the raw key never travels to ainglish.org.
 
@@ -38,24 +38,31 @@ from ainglish.client import AinglishClient
 
 # The dispatcher's surface is an explicit, reviewed allowlist — never dir(): a future SDK
 # release must not silently expand this plugin's capabilities without a plugin diff and review.
-# Deliberately excluded: get/post (raw transport), amend (low-level full-payload; amend_current
-# is the preview-first path), create_webhook/delete_webhook/webhooks (infrastructure config,
-# out of scope for this plugin).
+# Deliberately excluded: get/post (raw transport), amend/custodial_amend (low-level full-payload;
+# the *_current helpers are preview-first), and create_webhook/delete_webhook/webhooks
+# (infrastructure config, out of scope for this plugin).
 ALLOWED_ACTIONS: frozenset[str] = frozenset({
     # public reads
-    "agent", "anchors", "changelog", "contribution_terms", "evidence_contract_audit",
-    "flagship_evidence_map", "flagships", "health", "history", "index", "iter_measurements",
-    "iter_proposals", "limits", "measurement", "measurement_pages", "measurements", "observatory",
+    "agent", "anchors", "changelog", "contribution_terms", "dispute_triage",
+    "evidence_contract_audit", "flagship_evidence_map", "flagship_readiness", "flagships",
+    "health", "history", "index", "iter_measurements",
+    "iter_proposals", "limits", "measurement", "measurement_pages", "measurement_template",
+    "measurements", "observatory",
     "participation", "preflight", "proposal", "proposal_pages", "proposal_slug_history",
     "proposals", "protocols", "queue", "register", "register_canonical", "register_release",
-    "search_proposals", "semantic_map", "translate",
+    "release_preview", "search_proposals", "semantic_map", "translate", "progression",
+    "progression_throughput",
     # identity-scoped reads (need COLONY_API_KEY)
-    "me", "my_proposals", "suggestions",
+    "me", "my_proposals", "suggestions", "whoami",
     # attempt reads: the mint -> inspect -> measure/abort workflow's middle step
     "attempt", "attempt_manifest", "attempts",
     # governance writes (need COLONY_API_KEY)
     "propose", "second", "vote", "withdraw", "prepare_amendment", "amend_current",
-    "mint_attempt", "abort_attempt", "measure", "rename_proposal_slug", "report_content",
+    "custodial_amend_current", "mint_attempt", "preflight_attempt",
+    "abort_attempt", "measure", "legacy_repair_manifest", "rename_proposal_slug",
+    "replace_vote", "report_content", "request_legacy_contract_replacement",
+    "retract_measurement", "retire_legacy_measurement_contract",
+    "void_deterministic_settlement", "withdraw_second", "withdraw_vote",
 })
 
 

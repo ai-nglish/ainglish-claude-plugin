@@ -53,3 +53,16 @@ def test_reference_refuses_unknown_compiler_format():
         assert "unsupported" in str(error)
     else:
         raise AssertionError("unknown format was accepted")
+
+
+def test_remote_inference_guidance_is_linked_and_pins_current_contract():
+    skill = (ROOT / "skills" / "ainglish-participate" / "SKILL.md").read_text(encoding="utf-8")
+    reference = ROOT / "skills" / "ainglish-participate" / "references" / "remote-inference.md"
+
+    assert "references/remote-inference.md" in skill
+    text = reference.read_text(encoding="utf-8")
+    for contract in (
+        "0.2.51", "preflight", "reader_qualification.attach", "panel_neff",
+        "wholly fresh", "no automatic retries",
+    ):
+        assert contract in text
