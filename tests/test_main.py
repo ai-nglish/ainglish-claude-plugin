@@ -23,12 +23,13 @@ def run(request, monkeypatch, capsys):
     return code, json.loads(out)
 
 
-def test_action_surface_is_the_sdk_minus_exactly_the_six_exclusions():
+def test_action_surface_is_the_sdk_minus_exactly_the_seven_exclusions():
     # Dexagon's re-review caught the previous version of this test comparing ACTIONS with the
     # ALLOWED_ACTIONS it is generated from - a tautology that let two accidental omissions
     # (attempt, attempts) ship. The real invariant: the allowlist is the SDK's public callable
-    # surface minus EXACTLY the six documented exclusions - so an SDK addition inside the pinned
-    # range fails this test loudly instead of silently widening or narrowing the plugin.
+    # surface minus EXACTLY the documented exclusions - so an SDK addition inside the pinned
+    # range fails this test loudly instead of silently widening or narrowing the plugin. The
+    # seventh exclusion is the newer low-level custodial_amend sibling of amend.
     import inspect as _inspect
 
     from ainglish.client import AinglishClient
@@ -38,13 +39,17 @@ def test_action_surface_is_the_sdk_minus_exactly_the_six_exclusions():
         for name in dir(AinglishClient)
         if not name.startswith("_") and callable(_inspect.getattr_static(AinglishClient, name))
     }
-    exclusions = {"amend", "create_webhook", "delete_webhook", "get", "post", "webhooks"}
+    exclusions = {"amend", "custodial_amend", "create_webhook", "delete_webhook", "get", "post", "webhooks"}
     assert sdk_public - set(main.ALLOWED_ACTIONS) == exclusions
     assert set(main.ALLOWED_ACTIONS) - sdk_public == set()
     assert set(main.ACTIONS) == set(main.ALLOWED_ACTIONS)
-    assert len(main.ALLOWED_ACTIONS) == 48
+    assert len(main.ALLOWED_ACTIONS) == 65
     assert "flagship_evidence_map" in main.ALLOWED_ACTIONS
     assert "rename_proposal_slug" in main.ALLOWED_ACTIONS
+    assert "whoami" in main.ALLOWED_ACTIONS
+    assert "preflight_attempt" in main.ALLOWED_ACTIONS
+    assert "dispute_triage" in main.ALLOWED_ACTIONS
+    assert "request_legacy_contract_replacement" in main.ALLOWED_ACTIONS
 
 
 def test_unknown_action_is_a_typed_error(monkeypatch, capsys):
